@@ -1,0 +1,4 @@
+# User-facing variables intentionally use the `miru_` brand prefix across the
+# whole collection rather than per-role prefixes.
+skip_list:
+  - var-naming[no-role-prefix]

@@ -1,0 +1,22 @@
+galaxy_info:
+  role_name: provision
+  author: Miru Robotics
+  description: Install the Miru Agent and provision the device with the Miru control plane.
+  license: MIT
+  min_ansible_version: "2.15"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+        - noble
+    - name: Debian
+      versions:
+        - all
+  galaxy_tags:
+    - infrastructure
+    - linux
+    - robotics
+    - iot
+
+dependencies: []

@@ -1,0 +1,51 @@
+argument_specs:
+  main:
+    short_description: Install the Miru Agent and provision the device.
+    description:
+      - Sets up the Miru apt repository, installs the miru-agent package, and
+        provisions the device with the Miru control plane using a
+        provisioning token minted from the Platform API.
+      - Hosts that are already provisioned are detected and skipped, so the
+        role is safe to run repeatedly across a fleet.
+    options:
+      miru_api_key:
+        type: str
+        required: true
+        description:
+          - Miru Platform API key used to mint provisioning tokens.
+          - Requires the devices:provision and provisioning_tokens:write scopes.
+          - The key is only used on the Ansible controller; it is never
+            written to managed devices.
+      miru_agent_version:
+        type: str
+        default: ""
+        description: Agent version to install (e.g. "0.10.1"). Empty installs the latest.
+      miru_device_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description: Device name shown in the Miru dashboard.
+      miru_api_base_url:
+        type: str
+        default: "https://api.mirurobotics.com/beta"
+        description: Base URL of the Miru Platform API.
+      miru_api_version:
+        type: str
+        default: "2026-05-06.rainier"
+        description: Miru-Version header sent to the Platform API.
+      miru_apt_url:
+        type: str
+        default: "https://packages.mirurobotics.com/apt"
+        description: Miru apt repository URL.
+      miru_apt_key_url:
+        type: str
+        default: "https://packages.mirurobotics.com/apt/miru.gpg"
+        description: URL of the Miru apt signing key.
+      miru_apt_architecture:
+        type: str
+        description: Debian architecture for the apt source. Auto-detected by default.
+      miru_provision_no_log:
+        type: bool
+        default: true
+        description:
+          - Hide token minting and the provision command from logs.
+          - Set to false temporarily when debugging a failing provision run.

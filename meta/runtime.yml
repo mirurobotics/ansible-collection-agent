@@ -1,0 +1,2 @@
+# deb822_repository requires ansible-core 2.15
+requires_ansible: ">=2.15.0"

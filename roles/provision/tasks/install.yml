@@ -1,0 +1,13 @@
+- name: Install miru-agent
+  ansible.builtin.apt:
+    name: "miru-agent{% if miru_agent_version %}={{ miru_agent_version }}{% endif %}"
+    state: present
+    update_cache: "{{ miru_apt_repo is changed }}"
+  become: true
+
+- name: Ensure the miru service is enabled and running
+  ansible.builtin.systemd:
+    name: miru
+    enabled: true
+    state: started
+  become: true

@@ -1,0 +1,3 @@
+# collection build artifacts
+*.tar.gz
+.ansible/

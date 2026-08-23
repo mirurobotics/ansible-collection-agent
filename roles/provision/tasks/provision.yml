@@ -1,0 +1,54 @@
+# Determine whether the device is already provisioned so we only mint a
+# provisioning token (one-time use, 5-minute expiry) for hosts that need one.
+#
+# TODO: replace the credential-directory check with `miru-agent provision
+# --check` once the agent ships a first-class provisioned-state command.
+- name: Check for existing device credentials
+  ansible.builtin.find:
+    paths: /var/lib/miru/auth
+    file_type: file
+  register: miru_auth_files
+  become: true
+
+- name: Determine provisioned state
+  ansible.builtin.set_fact:
+    miru_provisioned: "{{ miru_auth_files.files | length > 0 }}"
+
+- name: Provision the device with a fresh token
+  when: not miru_provisioned
+  block:
+    - name: Mint a provisioning token
+      ansible.builtin.uri:
+        url: "{{ miru_api_base_url }}/provisioning_tokens"
+        method: POST
+        headers:
+          Miru-Version: "{{ miru_api_version }}"
+          X-API-Key: "{{ miru_api_key }}"
+        status_code: 200
+      register: miru_token_response
+      delegate_to: localhost
+      become: false
+      no_log: "{{ miru_provision_no_log }}"
+
+    # The token expires in 5 minutes, so provisioning runs immediately after.
+    - name: Provision the device
+      ansible.builtin.command:
+        argv:
+          - /usr/sbin/miru-agent
+          - provision
+          - "--device-name={{ miru_device_name }}"
+      environment:
+        MIRU_PROVISIONING_TOKEN: "{{ miru_token_response.json.token }}"
+      become: true
+      become_user: miru
+      changed_when: true
+      no_log: "{{ miru_provision_no_log }}"
+
+- name: Verify the miru service is active
+  ansible.builtin.systemd:
+    name: miru
+    state: started
+  become: true
+  check_mode: true
+  register: miru_service_check
+  failed_when: miru_service_check is changed

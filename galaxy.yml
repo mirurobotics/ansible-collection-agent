@@ -1,0 +1,21 @@
+namespace: mirurobotics
+name: agent
+version: 0.1.0
+readme: README.md
+authors:
+  - Miru Robotics <support@miruml.com>
+description: Install, provision, and manage the Miru Agent on fleet devices.
+license:
+  - MIT
+tags:
+  - infrastructure
+  - linux
+  - robotics
+  - iot
+repository: https://github.com/mirurobotics/ansible-collection-agent
+documentation: https://docs.mirurobotics.com
+homepage: https://www.mirurobotics.com
+issues: https://github.com/mirurobotics/ansible-collection-agent/issues
+build_ignore:
+  - .github
+  - "*.tar.gz"
