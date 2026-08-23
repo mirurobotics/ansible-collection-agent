@@ -1,6 +1,10 @@
 # miru_api_key has no default and must be supplied by the caller
 # (store it in Ansible Vault or inject via environment/CI secrets).
 
+# Set to false to install the agent without provisioning it — useful when
+# baking machine images that are provisioned later, on first boot.
+miru_provision: true
+
 # Agent version to install, e.g. "0.10.1". Empty installs the latest.
 miru_agent_version: ""
 

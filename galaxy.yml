@@ -18,4 +18,5 @@ homepage: https://www.mirurobotics.com
 issues: https://github.com/mirurobotics/ansible-collection-agent/issues
 build_ignore:
   - .github
+  - molecule
   - "*.tar.gz"

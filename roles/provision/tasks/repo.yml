@@ -1,6 +1,9 @@
-- name: Ensure apt HTTPS prerequisites are present
+# python3-debian is required by the deb822_repository module
+- name: Ensure apt prerequisites are present
   ansible.builtin.apt:
-    name: ca-certificates
+    name:
+      - ca-certificates
+      - python3-debian
     state: present
     update_cache: true
     cache_valid_time: 3600

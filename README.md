@@ -58,6 +58,7 @@ A ready-made playbook is included: `ansible-playbook -i inventory mirurobotics.a
 | Variable | Default | Description |
 | --- | --- | --- |
 | `miru_api_key` | — (required) | Platform API key used to mint provisioning tokens. Controller-side only. |
+| `miru_provision` | `true` | Set `false` to install the agent without provisioning (e.g. when baking machine images). No API key needed in that mode. |
 | `miru_agent_version` | `""` (latest) | Agent version to install, e.g. `0.10.1`. |
 | `miru_device_name` | `inventory_hostname` | Device name shown in the Miru dashboard. |
 | `miru_api_base_url` | `https://api.mirurobotics.com/beta` | Platform API base URL. |
@@ -76,10 +77,23 @@ A ready-made playbook is included: `ansible-playbook -i inventory mirurobotics.a
 
 ## Development
 
+Lint:
+
 ```bash
 pip install ansible-lint
 ansible-lint
 ```
+
+Test with [Molecule](https://ansible.readthedocs.io/projects/molecule/) (requires Docker):
+
+```bash
+pip install ansible-core molecule "molecule-plugins[docker]"
+ansible-galaxy collection install community.docker ansible.posix
+molecule test                            # Ubuntu 24.04 (default)
+MOLECULE_DISTRO=ubuntu2204 molecule test # Ubuntu 22.04
+```
+
+The default scenario is offline: it converges the role with `miru_provision: false` in a systemd-enabled container, checks idempotence, and verifies the package, apt source, and service. Provisioning against the live control plane is not covered by Molecule; it requires a staging API key (end-to-end workflow, planned).
 
 ## License
 

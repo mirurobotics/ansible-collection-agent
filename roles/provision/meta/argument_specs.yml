@@ -8,9 +8,16 @@ argument_specs:
       - Hosts that are already provisioned are detected and skipped, so the
         role is safe to run repeatedly across a fleet.
     options:
+      miru_provision:
+        type: bool
+        default: true
+        description:
+          - Set to false to install the agent without provisioning it, e.g.
+            when baking machine images that are provisioned later.
+          - When false, miru_api_key is not required.
       miru_api_key:
         type: str
-        required: true
+        required: false
         description:
           - Miru Platform API key used to mint provisioning tokens.
           - Requires the devices:provision and provisioning_tokens:write scopes.
