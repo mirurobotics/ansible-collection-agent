@@ -2,7 +2,7 @@
 
 `mirurobotics.agent` — install the [Miru Agent](https://docs.mirurobotics.com/developers/agent/overview) and provision devices with the Miru control plane.
 
-> **Status: prototype.** Not yet published to Ansible Galaxy. Interfaces may change.
+> **Status: 0.1.0.** Tag `v0.1.0` to publish to Ansible Galaxy.
 
 ## What it does
 
@@ -24,7 +24,11 @@ The role is idempotent: a pinned version converges every host to that package, a
 
 ## Install
 
-Until the collection is published to Galaxy, install it from git via `requirements.yml`:
+```bash
+ansible-galaxy collection install mirurobotics.agent
+```
+
+Until the first Galaxy release exists, install from git:
 
 ```yaml
 collections:
@@ -98,6 +102,12 @@ molecule test -s e2e
 ```
 
 CI runs the e2e scenario on same-repo pulls using the `MIRU_API_KEY` repository secret. Each run creates a uniquely named device (`ci-<run-id>-...`) in the key's workspace.
+
+### Publishing
+
+1. Create the `mirurobotics` namespace on [Ansible Galaxy](https://galaxy.ansible.com) (log in with GitHub).
+2. Add a `GALAXY_API_KEY` repository secret (Galaxy → Collections → API token).
+3. Tag `v0.1.0` (must match `galaxy.yml`) and push. The Release workflow builds and publishes.
 
 ## License
 
