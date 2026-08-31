@@ -13,3 +13,4 @@
   fresh host exits 3.
 - Molecule e2e scenario that mints a provisioning token and provisions a
   device against the production API (CI uses the `MIRU_API_KEY` secret).
+- Tag `v0.1.0` to publish to Ansible Galaxy (requires `GALAXY_API_KEY`).
