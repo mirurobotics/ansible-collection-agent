@@ -1,0 +1,40 @@
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    - name: Gather package facts
+      ansible.builtin.package_facts:
+
+    - name: Assert miru-agent is installed
+      ansible.builtin.assert:
+        that: "'miru-agent' in ansible_facts.packages"
+
+    - name: Stat the Miru apt source
+      ansible.builtin.stat:
+        path: /etc/apt/sources.list.d/miru.sources
+      register: miru_sources
+
+    - name: Assert the Miru apt source is present
+      ansible.builtin.assert:
+        that: miru_sources.stat.exists
+
+    - name: Check if the device is already provisioned
+      ansible.builtin.command:
+        argv:
+          - /usr/sbin/miru-agent
+          - provision
+          - --check
+      become: true
+      become_user: miru
+      register: miru_check
+      changed_when: false
+      failed_when: miru_check.rc not in [0, 3]
+
+    - name: Assert a fresh install is not provisioned
+      ansible.builtin.assert:
+        that:
+          - miru_check.rc == 3
+          - miru_check.stdout == "not provisioned"
+        fail_msg: >-
+          expected provision --check to exit 3 with 'not provisioned'
+          (got rc={{ miru_check.rc }} stdout={{ miru_check.stdout | default('') }})

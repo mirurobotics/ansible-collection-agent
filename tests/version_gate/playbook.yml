@@ -1,0 +1,13 @@
+# Runs only the provision role's validate tasks (no apt, no API, no device).
+- name: Validate provision role inputs
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    miru_agent_version: "{{ test_version | default(omit) }}"
+    miru_api_key: "{{ test_api_key | default('dummy') }}"
+  tasks:
+    - name: Run validate tasks
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: validate.yml

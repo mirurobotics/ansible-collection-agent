@@ -2,7 +2,7 @@
 
 `mirurobotics.agent` — install the [Miru Agent](https://docs.mirurobotics.com/developers/agent/overview) and provision devices with the Miru control plane.
 
-> **Status: prototype.** Not yet published to Ansible Galaxy. Interfaces may change.
+> **Status: 0.1.0.** Tag `v0.1.0` to publish to Ansible Galaxy.
 
 ## What it does
 
@@ -24,9 +24,14 @@ The role is idempotent: a pinned version converges every host to that package, a
 
 ## Install
 
-Until the collection is published to Galaxy, install it from git via `requirements.yml`:
+```bash
+ansible-galaxy collection install mirurobotics.agent
+```
+
+Until the first Galaxy release exists, install from git:
 
 ```yaml
+# requirements.yml
 collections:
   - name: https://github.com/mirurobotics/ansible-collection-agent.git
     type: git
@@ -77,11 +82,26 @@ A ready-made playbook is included: `ansible-playbook -i inventory mirurobotics.a
 ## Development
 
 ```bash
-pip install ansible-lint
+pip install ansible-lint ansible-core
 ansible-lint
+bash tests/version_gate/run.sh
 ```
 
-Provisioning against the live control plane is not covered by CI; it requires a staging API key (end-to-end workflow, planned).
+Molecule (Docker; installs `miru-agent` 0.10.2-beta.1 from GitHub and asserts `provision --check` exits 3):
+
+```bash
+pip install ansible-core molecule "molecule-plugins[docker]"
+ansible-galaxy collection install community.docker ansible.posix
+molecule test
+```
+
+Token minting against the live control plane is not in CI.
+
+### Publishing
+
+1. Create the `mirurobotics` namespace on [Ansible Galaxy](https://galaxy.ansible.com) (log in with GitHub).
+2. Add a `GALAXY_API_KEY` repository secret (Galaxy → Collections → API token).
+3. Tag `v0.1.0` (must match `galaxy.yml`) and push. The Release workflow builds and publishes.
 
 ## License
 
