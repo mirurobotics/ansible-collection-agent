@@ -9,17 +9,17 @@
 The `mirurobotics.agent.provision` role runs the full [provisioning-token flow](https://docs.mirurobotics.com/cfg-mgmt/provision-devices/provisioning-tokens) against every host in your play:
 
 1. Sets up Miru's apt repository (signing key + deb822 source).
-2. Installs the `miru-agent` package (optionally version-pinned).
+2. Installs the `miru-agent` package at the version you specify.
 3. Skips hosts that are already provisioned.
 4. For unprovisioned hosts, mints a short-lived provisioning token from the Platform API (on the controller — your API key never touches the devices) and runs `miru-agent provision`.
 
-The role is idempotent: re-running it against a fleet installs/upgrades nothing that is already in place and only provisions hosts that need it.
+The role is idempotent: a pinned version converges every host to that package, and only unprovisioned hosts are provisioned. `miru_agent_version: latest` upgrades to the newest package on every run.
 
 ## Requirements
 
 - ansible-core >= 2.15
 - Target devices running a [supported Linux platform](https://docs.mirurobotics.com/developers/agent/install) with `systemd` and apt
-- Miru Agent >= v0.9.0 (provisioning tokens are not supported by earlier agents)
+- Miru Agent >= v0.10.2 (`provision --check` is not in earlier releases)
 - A Miru [API key](https://docs.mirurobotics.com/admin/apikeys) with the `devices:provision` and `provisioning_tokens:write` scopes, available on the Ansible controller
 
 ## Install
@@ -46,7 +46,7 @@ ansible-galaxy collection install -r requirements.yml
     - role: mirurobotics.agent.provision
       vars:
         miru_api_key: "{{ vault_miru_api_key }}"
-        miru_agent_version: "0.10.1"   # optional; omit for latest
+        miru_agent_version: "0.10.2"   # required, >= 0.10.2; use "latest" to float
 ```
 
 Store the API key in [Ansible Vault](https://docs.ansible.com/ansible/latest/vault_guide/index.html) or inject it from your CI secret store — never commit it to inventory.
@@ -58,42 +58,30 @@ A ready-made playbook is included: `ansible-playbook -i inventory mirurobotics.a
 | Variable | Default | Description |
 | --- | --- | --- |
 | `miru_api_key` | — (required) | Platform API key used to mint provisioning tokens. Controller-side only. |
-| `miru_provision` | `true` | Set `false` to install the agent without provisioning (e.g. when baking machine images). No API key needed in that mode. |
-| `miru_agent_version` | `""` (latest) | Agent version to install, e.g. `0.10.1`. |
+| `miru_agent_version` | — (required) | Agent version to install, e.g. `0.10.2`. Must be `0.10.2` or later. Use `latest` only when you want the newest package on every run. |
 | `miru_device_name` | `inventory_hostname` | Device name shown in the Miru dashboard. |
 | `miru_api_base_url` | `https://api.mirurobotics.com/beta` | Platform API base URL. |
-| `miru_api_version` | `2026-05-06.rainier` | `Miru-Version` header sent to the Platform API. |
+| `miru_api_version` | `2026-08-17.everglades` | `Miru-Version` header sent to the Platform API. |
 | `miru_apt_url` | `https://packages.mirurobotics.com/apt` | Miru apt repository. |
 | `miru_apt_key_url` | `.../apt/miru.gpg` | Miru apt signing key. |
 | `miru_apt_architecture` | auto-detected | Debian architecture (`amd64`, `arm64`). |
-| `miru_provision_no_log` | `true` | Hide tokens from logs. Set `false` briefly to debug a failing provision. |
+| `miru_log_secrets` | `false` | Print the API key and provisioning token in Ansible output. Leave off except for a local debug run. |
 
 ## Notes and limitations
 
-- **Already-provisioned detection** currently checks for device credentials under `/var/lib/miru/auth/`. It will move to a first-class `miru-agent provision --check` command when the agent ships one.
+- **Already-provisioned detection** uses `miru-agent provision --check` (exit `0` provisioned, `3` not provisioned, anything else fails the play).
 - **Reprovisioning** (reassociating a machine with an existing Miru device) is a [dashboard-only flow](https://docs.mirurobotics.com/cfg-mgmt/provision-devices/reprovision) today and is out of scope for this role.
 - A machine that was reprovisioned onto different hardware still holds stale local credentials and is treated as provisioned by the guard; recover via the dashboard reprovision flow.
 - Verification is local (the `miru` systemd service is active). To confirm end-to-end, check the [Devices page](https://app.mirurobotics.com/devices) — devices transition `Activating` → `Online` within seconds.
 
 ## Development
 
-Lint:
-
 ```bash
 pip install ansible-lint
 ansible-lint
 ```
 
-Test with [Molecule](https://ansible.readthedocs.io/projects/molecule/) (requires Docker):
-
-```bash
-pip install ansible-core molecule "molecule-plugins[docker]"
-ansible-galaxy collection install community.docker ansible.posix
-molecule test                            # Ubuntu 24.04 (default)
-MOLECULE_DISTRO=ubuntu2204 molecule test # Ubuntu 22.04
-```
-
-The default scenario is offline: it converges the role with `miru_provision: false` in a systemd-enabled container, checks idempotence, and verifies the package, apt source, and service. Provisioning against the live control plane is not covered by Molecule; it requires a staging API key (end-to-end workflow, planned).
+Provisioning against the live control plane is not covered by CI; it requires a staging API key (end-to-end workflow, planned).
 
 ## License
 

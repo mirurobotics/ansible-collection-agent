@@ -1,22 +1,27 @@
-# Determine whether the device is already provisioned so we only mint a
-# provisioning token (one-time use, 5-minute expiry) for hosts that need one.
-#
-# TODO: replace the credential-directory check with `miru-agent provision
-# --check` once the agent ships a first-class provisioned-state command.
-- name: Check for existing device credentials
-  ansible.builtin.find:
-    paths: /var/lib/miru/auth
-    file_type: file
-  register: miru_auth_files
+# `provision --check` is read-only. Exit 0 = already provisioned, 3 = not
+# provisioned, anything else = state could not be determined (fail the play).
+- name: Check if the device is already provisioned
+  ansible.builtin.command:
+    argv:
+      - /usr/sbin/miru-agent
+      - provision
+      - --check
   become: true
+  become_user: miru
+  register: miru_check
+  changed_when: false
+  check_mode: false
+  failed_when: miru_check.rc not in [0, 3]
 
-- name: Determine provisioned state
+- name: Record provisioned state
   ansible.builtin.set_fact:
-    miru_provisioned: "{{ miru_auth_files.files | length > 0 }}"
+    miru_provisioned: "{{ miru_check.rc == 0 }}"
 
 - name: Provision the device with a fresh token
   when: not miru_provisioned
   block:
+    # this step does not expose the API key to device being provisioned so we use
+    # localhost delegate_to
     - name: Mint a provisioning token
       ansible.builtin.uri:
         url: "{{ miru_api_base_url }}/provisioning_tokens"
@@ -28,9 +33,9 @@
       register: miru_token_response
       delegate_to: localhost
       become: false
-      no_log: "{{ miru_provision_no_log }}"
+      no_log: "{{ not (miru_log_secrets | bool) }}"
 
-    # The token expires in 5 minutes, so provisioning runs immediately after.
+    # token has a short expiry, provisioning needs to run immediately after
     - name: Provision the device
       ansible.builtin.command:
         argv:
@@ -42,7 +47,7 @@
       become: true
       become_user: miru
       changed_when: true
-      no_log: "{{ miru_provision_no_log }}"
+      no_log: "{{ not (miru_log_secrets | bool) }}"
 
 - name: Verify the miru service is active
   ansible.builtin.systemd:
