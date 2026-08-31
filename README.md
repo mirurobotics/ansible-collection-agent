@@ -77,11 +77,27 @@ A ready-made playbook is included: `ansible-playbook -i inventory mirurobotics.a
 ## Development
 
 ```bash
-pip install ansible-lint
+pip install ansible-lint ansible-core
 ansible-lint
+bash tests/validate/run.sh
 ```
 
-Provisioning against the live control plane is not covered by CI; it requires a staging API key (end-to-end workflow, planned).
+Molecule (Docker; installs `miru-agent` 0.10.2-beta.1 from GitHub and asserts `provision --check` exits 3):
+
+```bash
+pip install ansible-core molecule "molecule-plugins[docker]"
+ansible-galaxy collection install community.docker ansible.posix
+molecule test
+```
+
+End-to-end Molecule mints a token and provisions a device. It needs `MIRU_API_KEY` with `devices:provision` and `provisioning_tokens:write`. Apt does not yet publish 0.10.2-beta.1, so the scenario installs the GitHub `.deb` and then runs the role's `provision.yml`.
+
+```bash
+export MIRU_API_KEY=...
+molecule test -s e2e
+```
+
+CI runs the e2e scenario on same-repo pulls using the `MIRU_API_KEY` repository secret. Each run creates a uniquely named device (`ci-<run-id>-...`) in the key's workspace.
 
 ## License
 
