@@ -1,6 +1,4 @@
 # User-facing variables intentionally use the `miru_` brand prefix across the
 # whole collection rather than per-role prefixes.
-# Collection history lives in git; we do not maintain CHANGELOG.md.
 skip_list:
   - var-naming[no-role-prefix]
-  - galaxy[no-changelog]
