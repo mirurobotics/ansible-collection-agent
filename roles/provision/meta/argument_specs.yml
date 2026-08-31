@@ -8,16 +8,9 @@ argument_specs:
       - Hosts that are already provisioned are detected and skipped, so the
         role is safe to run repeatedly across a fleet.
     options:
-      miru_provision:
-        type: bool
-        default: true
-        description:
-          - Set to false to install the agent without provisioning it, e.g.
-            when baking machine images that are provisioned later.
-          - When false, miru_api_key is not required.
       miru_api_key:
         type: str
-        required: false
+        required: true
         description:
           - Miru Platform API key used to mint provisioning tokens.
           - Requires the devices:provision and provisioning_tokens:write scopes.
@@ -25,8 +18,12 @@ argument_specs:
             written to managed devices.
       miru_agent_version:
         type: str
-        default: ""
-        description: Agent version to install (e.g. "0.10.1"). Empty installs the latest.
+        required: true
+        description:
+          - Agent version to install (e.g. "0.10.1"). Required so every host
+            in a fleet converges to the same package.
+          - Use "latest" to install or upgrade to the newest package on every
+            run (labs). Prefer a pin in production.
       miru_device_name:
         type: str
         default: "{{ inventory_hostname }}"
@@ -37,8 +34,14 @@ argument_specs:
         description: Base URL of the Miru Platform API.
       miru_api_version:
         type: str
-        default: "2026-05-06.rainier"
+        default: "2026-08-17.everglades"
         description: Miru-Version header sent to the Platform API.
+      miru_log_secrets:
+        type: bool
+        default: false
+        description:
+          - Print the API key and provisioning token in Ansible output.
+          - Leave false except for a local debug run. Do not enable in CI.
       miru_apt_url:
         type: str
         default: "https://packages.mirurobotics.com/apt"
@@ -50,9 +53,3 @@ argument_specs:
       miru_apt_architecture:
         type: str
         description: Debian architecture for the apt source. Auto-detected by default.
-      miru_provision_no_log:
-        type: bool
-        default: true
-        description:
-          - Hide token minting and the provision command from logs.
-          - Set to false temporarily when debugging a failing provision run.

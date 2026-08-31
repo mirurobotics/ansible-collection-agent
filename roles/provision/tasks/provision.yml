@@ -17,6 +17,8 @@
 - name: Provision the device with a fresh token
   when: not miru_provisioned
   block:
+    # this step does not expose the API key to device being provisioned so we use
+    # localhost delegate_to
     - name: Mint a provisioning token
       ansible.builtin.uri:
         url: "{{ miru_api_base_url }}/provisioning_tokens"
@@ -28,9 +30,9 @@
       register: miru_token_response
       delegate_to: localhost
       become: false
-      no_log: "{{ miru_provision_no_log }}"
+      no_log: "{{ not (miru_log_secrets | bool) }}"
 
-    # The token expires in 5 minutes, so provisioning runs immediately after.
+    # token has a short expiry, provisioning needs to run immediately after
     - name: Provision the device
       ansible.builtin.command:
         argv:
@@ -42,7 +44,7 @@
       become: true
       become_user: miru
       changed_when: true
-      no_log: "{{ miru_provision_no_log }}"
+      no_log: "{{ not (miru_log_secrets | bool) }}"
 
 - name: Verify the miru service is active
   ansible.builtin.systemd:

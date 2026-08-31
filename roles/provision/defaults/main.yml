@@ -1,27 +1,9 @@
-# miru_api_key has no default and must be supplied by the caller
-# (store it in Ansible Vault or inject via environment/CI secrets).
-
-# Set to false to install the agent without provisioning it — useful when
-# baking machine images that are provisioned later, on first boot.
-miru_provision: true
-
-# Agent version to install, e.g. "0.10.1". Empty installs the latest.
-miru_agent_version: ""
-
-# Device name shown in the Miru dashboard.
 miru_device_name: "{{ inventory_hostname }}"
 
-# Platform API endpoint and version header used to mint provisioning tokens.
 miru_api_base_url: "https://api.mirurobotics.com/beta"
-miru_api_version: "2026-05-06.rainier"
+miru_api_version: "2026-08-17.everglades"
+miru_log_secrets: false
 
-# Miru apt repository and signing key.
 miru_apt_url: "https://packages.mirurobotics.com/apt"
 miru_apt_key_url: "https://packages.mirurobotics.com/apt/miru.gpg"
-
-# Debian architecture for the apt source (auto-mapped from ansible_facts).
 miru_apt_architecture: "{{ {'x86_64': 'amd64', 'aarch64': 'arm64'}.get(ansible_facts.architecture, ansible_facts.architecture) }}"
-
-# Tokens and the provision command are hidden from logs by default.
-# Set to false temporarily when debugging a failing provision run.
-miru_provision_no_log: true

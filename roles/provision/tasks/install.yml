@@ -1,7 +1,7 @@
 - name: Install miru-agent
   ansible.builtin.apt:
-    name: "miru-agent{% if miru_agent_version %}={{ miru_agent_version }}{% endif %}"
-    state: present
+    name: "miru-agent{% if miru_agent_version != 'latest' %}={{ miru_agent_version }}{% endif %}"
+    state: "{{ 'latest' if miru_agent_version == 'latest' else 'present' }}"
     update_cache: "{{ miru_apt_repo is changed }}"
   become: true
 

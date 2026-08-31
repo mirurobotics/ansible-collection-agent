@@ -1,9 +1,0 @@
-# Offline scenario: install-only (miru_provision: false), so no control
-# plane or API key is needed. The provisioning leg is exercised by the e2e
-# workflow against staging.
-- name: Converge
-  hosts: all
-  roles:
-    - role: provision
-      vars:
-        miru_provision: false
