@@ -3,7 +3,7 @@
 #   ansible-playbook -i inventory.ini mirurobotics.agent.provision
 #
 # Expects vault_miru_api_key (e.g. via Ansible Vault) and
-# miru_agent_version (e.g. group_vars or -e miru_agent_version=0.10.1).
+# miru_agent_version (e.g. group_vars or -e miru_agent_version=0.10.2).
 - name: Provision Miru devices
   hosts: robots
   roles:

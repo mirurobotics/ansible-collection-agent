@@ -20,8 +20,9 @@ argument_specs:
         type: str
         required: true
         description:
-          - Agent version to install (e.g. "0.10.1"). Required so every host
-            in a fleet converges to the same package.
+          - Agent version to install (e.g. "0.10.2"). Required so every host
+            in a fleet converges to the same package. Must be 0.10.2 or later
+            (`provision --check` is not in earlier releases).
           - Use "latest" to install or upgrade to the newest package on every
             run (labs). Prefer a pin in production.
       miru_device_name:

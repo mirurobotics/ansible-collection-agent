@@ -19,7 +19,7 @@ The role is idempotent: a pinned version converges every host to that package, a
 
 - ansible-core >= 2.15
 - Target devices running a [supported Linux platform](https://docs.mirurobotics.com/developers/agent/install) with `systemd` and apt
-- Miru Agent >= v0.9.0 (provisioning tokens are not supported by earlier agents)
+- Miru Agent >= v0.10.2 (`provision --check` is not in earlier releases)
 - A Miru [API key](https://docs.mirurobotics.com/admin/apikeys) with the `devices:provision` and `provisioning_tokens:write` scopes, available on the Ansible controller
 
 ## Install
@@ -46,7 +46,7 @@ ansible-galaxy collection install -r requirements.yml
     - role: mirurobotics.agent.provision
       vars:
         miru_api_key: "{{ vault_miru_api_key }}"
-        miru_agent_version: "0.10.1"   # required; use "latest" to float
+        miru_agent_version: "0.10.2"   # required, >= 0.10.2; use "latest" to float
 ```
 
 Store the API key in [Ansible Vault](https://docs.ansible.com/ansible/latest/vault_guide/index.html) or inject it from your CI secret store — never commit it to inventory.
@@ -58,7 +58,7 @@ A ready-made playbook is included: `ansible-playbook -i inventory mirurobotics.a
 | Variable | Default | Description |
 | --- | --- | --- |
 | `miru_api_key` | — (required) | Platform API key used to mint provisioning tokens. Controller-side only. |
-| `miru_agent_version` | — (required) | Agent version to install, e.g. `0.10.1`. Use `latest` only when you want the newest package on every run. |
+| `miru_agent_version` | — (required) | Agent version to install, e.g. `0.10.2`. Must be `0.10.2` or later. Use `latest` only when you want the newest package on every run. |
 | `miru_device_name` | `inventory_hostname` | Device name shown in the Miru dashboard. |
 | `miru_api_base_url` | `https://api.mirurobotics.com/beta` | Platform API base URL. |
 | `miru_api_version` | `2026-08-17.everglades` | `Miru-Version` header sent to the Platform API. |
@@ -69,7 +69,7 @@ A ready-made playbook is included: `ansible-playbook -i inventory mirurobotics.a
 
 ## Notes and limitations
 
-- **Already-provisioned detection** currently checks for device credentials under `/var/lib/miru/auth/`. It will move to a first-class `miru-agent provision --check` command when the agent ships one.
+- **Already-provisioned detection** uses `miru-agent provision --check` (exit `0` provisioned, `3` not provisioned, anything else fails the play).
 - **Reprovisioning** (reassociating a machine with an existing Miru device) is a [dashboard-only flow](https://docs.mirurobotics.com/cfg-mgmt/provision-devices/reprovision) today and is out of scope for this role.
 - A machine that was reprovisioned onto different hardware still holds stale local credentials and is treated as provisioned by the guard; recover via the dashboard reprovision flow.
 - Verification is local (the `miru` systemd service is active). To confirm end-to-end, check the [Devices page](https://app.mirurobotics.com/devices) — devices transition `Activating` → `Online` within seconds.

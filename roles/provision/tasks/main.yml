@@ -4,8 +4,18 @@
       - miru_agent_version is defined
       - miru_agent_version | length > 0
     fail_msg: >-
-      miru_agent_version is required (e.g. "0.10.1"). Use "latest" only when
+      miru_agent_version is required (e.g. "0.10.2"). Use "latest" only when
       you intentionally want the newest package on every run.
+
+- name: Verify the agent version supports provision --check
+  ansible.builtin.assert:
+    that:
+      - >-
+        miru_agent_version == 'latest'
+        or (miru_agent_version | regex_replace('^[vV]', '') is version('0.10.2', '>='))
+    fail_msg: >-
+      miru_agent_version must be 0.10.2 or later (got "{{ miru_agent_version }}").
+      That is the first agent release that ships `provision --check`.
 
 - name: Verify the API key is set
   ansible.builtin.assert:
