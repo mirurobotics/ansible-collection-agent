@@ -1,0 +1,26 @@
+# Offline of the control plane: set up the apt source via the role, then
+# install a --check-capable agent from GitHub so CI does not depend on apt
+# having published 0.10.2 yet. Token minting is not exercised here.
+- name: Converge
+  hosts: all
+  become: true
+  tasks:
+    - name: Set up the Miru apt repository
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: repo.yml
+
+    - name: Download a provision --check capable agent
+      ansible.builtin.get_url:
+        url: "{{ miru_agent_deb_url }}"
+        dest: /tmp/miru-agent.deb
+        mode: "0644"
+      vars:
+        miru_agent_ver: "{{ miru_agent_deb_tag | regex_replace('^v', '') }}"
+        miru_agent_deb_url: >-
+          https://github.com/mirurobotics/agent/releases/download/{{ miru_agent_deb_tag }}/miru-agent_{{ miru_agent_ver }}_amd64.deb
+
+    - name: Install the downloaded agent
+      ansible.builtin.apt:
+        deb: /tmp/miru-agent.deb
+        state: present
