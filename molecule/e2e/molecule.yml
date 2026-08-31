@@ -1,0 +1,29 @@
+driver:
+  name: docker
+platforms:
+  - name: miru-agent-e2e-${MOLECULE_DISTRO:-ubuntu2404}
+    image: "geerlingguy/docker-${MOLECULE_DISTRO:-ubuntu2404}-ansible:latest"
+    command: ""
+    pre_build_image: true
+    privileged: true
+    cgroupns_mode: host
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+provisioner:
+  name: ansible
+  config_options:
+    defaults:
+      roles_path: ${MOLECULE_PROJECT_DIRECTORY}/roles
+  inventory:
+    group_vars:
+      all:
+        miru_agent_deb_tag: "{{ lookup('env', 'MOLECULE_AGENT_TAG') | default('v0.10.2-beta.1', true) }}"
+        miru_agent_version: "{{ miru_agent_deb_tag | regex_replace('^v', '') }}"
+        miru_api_key: "{{ lookup('env', 'MIRU_API_KEY') }}"
+        # GITHUB_RUN_ID is stable across the two Molecule converges in one CI job.
+        # Local runs fall back to a timestamp so leftover workspace devices do not collide.
+        miru_device_name: >-
+          ci-{{ lookup('env', 'GITHUB_RUN_ID') | default(lookup('pipe', 'date +%s'), true) }}-{{ inventory_hostname }}
+        miru_log_secrets: false
+verifier:
+  name: ansible

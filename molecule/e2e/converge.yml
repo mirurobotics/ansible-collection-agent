@@ -1,0 +1,53 @@
+# Live control plane: validate + apt source + GitHub .deb (apt does not yet
+# publish 0.10.2-beta.1, so install.yml cannot pin it) + provision.yml.
+# Requires MIRU_API_KEY with devices:provision and provisioning_tokens:write.
+- name: Converge
+  hosts: all
+  become: true
+  tasks:
+    - name: Require MIRU_API_KEY
+      ansible.builtin.assert:
+        that:
+          - miru_api_key is defined
+          - miru_api_key is string
+          - miru_api_key | length > 0
+        fail_msg: >-
+          MIRU_API_KEY must be set in the environment. CI uses the repository
+          secret; locally export a key with devices:provision and
+          provisioning_tokens:write.
+
+    - name: Validate required variables
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: validate.yml
+
+    - name: Set up the Miru apt repository
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: repo.yml
+
+    - name: Download a provision --check capable agent
+      ansible.builtin.get_url:
+        url: "{{ miru_agent_deb_url }}"
+        dest: /tmp/miru-agent.deb
+        mode: "0644"
+      vars:
+        miru_agent_ver: "{{ miru_agent_deb_tag | regex_replace('^v', '') }}"
+        miru_agent_deb_url: >-
+          https://github.com/mirurobotics/agent/releases/download/{{ miru_agent_deb_tag }}/miru-agent_{{ miru_agent_ver }}_amd64.deb
+
+    - name: Install the downloaded agent
+      ansible.builtin.apt:
+        deb: /tmp/miru-agent.deb
+        state: present
+
+    - name: Ensure the miru service is enabled and running
+      ansible.builtin.systemd:
+        name: miru
+        enabled: true
+        state: started
+
+    - name: Provision the device
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: provision.yml

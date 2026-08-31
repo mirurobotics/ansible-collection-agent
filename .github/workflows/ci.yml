@@ -13,5 +13,49 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
-      - run: pip install ansible-lint
+      - run: pip install ansible-lint ansible-core
       - run: ansible-lint
+      - run: ansible-galaxy collection build --output-path /tmp/collection-build
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - run: pip install ansible-core
+      - run: bash tests/validate/run.sh
+
+  molecule:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        distro: [ubuntu2204, ubuntu2404]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - run: pip install ansible-core molecule "molecule-plugins[docker]"
+      - run: ansible-galaxy collection install community.docker ansible.posix
+      - run: molecule test
+        env:
+          MOLECULE_DISTRO: ${{ matrix.distro }}
+
+  e2e:
+    # Same-repo PRs and pushes have MIRU_API_KEY. Fork PRs do not.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - run: pip install ansible-core molecule "molecule-plugins[docker]"
+      - run: ansible-galaxy collection install community.docker ansible.posix
+      - run: molecule test -s e2e
+        env:
+          MOLECULE_DISTRO: ubuntu2404
+          MIRU_API_KEY: ${{ secrets.MIRU_API_KEY }}
