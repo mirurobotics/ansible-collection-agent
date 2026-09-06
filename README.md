@@ -47,11 +47,7 @@ ansible-galaxy collection install \
   https://github.com/mirurobotics/ansible-collection-agent/releases/download/v0.1.0/mirurobotics-agent-0.1.0.tar.gz
 ```
 
-After Galaxy publishes `mirurobotics.agent`:
-
-```bash
-ansible-galaxy collection install mirurobotics.agent
-```
+Galaxy install (`ansible-galaxy collection install mirurobotics.agent`) is not enabled yet.
 
 ## Usage
 
@@ -125,8 +121,7 @@ CI runs the e2e scenario on same-repo pulls using the `MIRU_API_KEY` repository 
 
 ### Publishing
 
-1. Tag `vX.Y.Z` matching `galaxy.yml` and push. The Release workflow attaches `mirurobotics-agent-X.Y.Z.tar.gz` to a GitHub Release.
-2. When the `mirurobotics` namespace exists on [Ansible Galaxy](https://galaxy.ansible.com), the same workflow publishes the tarball (`GALAXY_API_KEY`). Galaxy publish is best-effort until that namespace is granted.
+Tag `vX.Y.Z` matching `galaxy.yml` and push. The Release workflow attaches `mirurobotics-agent-X.Y.Z.tar.gz` to a GitHub Release. Galaxy publish stays in the workflow but is skipped until the `PUBLISH_TO_GALAXY` repository variable is set to `true`.
 
 ## License
 

@@ -38,8 +38,10 @@ jobs:
             --title "${GITHUB_REF_NAME}" \
             --notes "Install with: ansible-galaxy collection install https://github.com/mirurobotics/ansible-collection-agent/releases/download/${GITHUB_REF_NAME}/mirurobotics-agent-${GITHUB_REF_NAME#v}.tar.gz"
 
+      # Kept for when the mirurobotics Galaxy namespace is granted.
+      # Enable with the PUBLISH_TO_GALAXY repository variable.
       - name: Publish to Ansible Galaxy
-        continue-on-error: true
+        if: ${{ vars.PUBLISH_TO_GALAXY == 'true' }}
         env:
           GALAXY_API_KEY: ${{ secrets.GALAXY_API_KEY }}
         run: |
