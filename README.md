@@ -2,7 +2,7 @@
 
 `mirurobotics.agent` — install the [Miru Agent](https://docs.mirurobotics.com/developers/agent/overview) and provision devices with the Miru control plane.
 
-> **Status: 0.1.0.** Tag `v0.1.0` to publish to Ansible Galaxy.
+> **Status: 0.1.0.** Ansible Galaxy is waiting on the `mirurobotics` namespace. Install from git or the GitHub Release tarball until then.
 
 ## What it does
 
@@ -24,13 +24,12 @@ The role is idempotent: a pinned version converges every host to that package, a
 
 ## Install
 
-```bash
-ansible-galaxy collection install mirurobotics.agent
-```
+Until the collection is on Ansible Galaxy, install from git or from a release tarball.
 
-Until the first Galaxy release exists, install from git:
+Git (tracks `main`):
 
 ```yaml
+# requirements.yml
 collections:
   - name: https://github.com/mirurobotics/ansible-collection-agent.git
     type: git
@@ -39,6 +38,19 @@ collections:
 
 ```bash
 ansible-galaxy collection install -r requirements.yml
+```
+
+Pinned tarball:
+
+```bash
+ansible-galaxy collection install \
+  https://github.com/mirurobotics/ansible-collection-agent/releases/download/v0.1.0/mirurobotics-agent-0.1.0.tar.gz
+```
+
+After Galaxy publishes `mirurobotics.agent`:
+
+```bash
+ansible-galaxy collection install mirurobotics.agent
 ```
 
 ## Usage
@@ -63,6 +75,7 @@ A ready-made playbook is included: `ansible-playbook -i inventory mirurobotics.a
 | --- | --- | --- |
 | `miru_api_key` | — (required) | Platform API key used to mint provisioning tokens. Controller-side only. |
 | `miru_agent_version` | — (required) | Agent version to install, e.g. `0.10.2`. Must be `0.10.2` or later. Use `latest` only when you want the newest package on every run. |
+| `miru_agent_deb_url` | `""` | HTTPS URL of a `miru-agent` `.deb` to install instead of the apt pin. Use when that version is on GitHub Releases but not yet in apt. Must match the host architecture. |
 | `miru_device_name` | `inventory_hostname` | Device name shown in the Miru dashboard. |
 | `miru_api_base_url` | `https://api.mirurobotics.com/beta` | Platform API base URL. |
 | `miru_api_version` | `2026-08-17.everglades` | `Miru-Version` header sent to the Platform API. |
@@ -70,6 +83,13 @@ A ready-made playbook is included: `ansible-playbook -i inventory mirurobotics.a
 | `miru_apt_key_url` | `.../apt/miru.gpg` | Miru apt signing key. |
 | `miru_apt_architecture` | auto-detected | Debian architecture (`amd64`, `arm64`). |
 | `miru_log_secrets` | `false` | Print the API key and provisioning token in Ansible output. Leave off except for a local debug run. |
+
+Apt `stable` does not yet publish 0.10.2. Until it does, pin a GitHub `.deb` that includes `provision --check`:
+
+```yaml
+miru_agent_version: "0.10.2-beta.1"
+miru_agent_deb_url: "https://github.com/mirurobotics/agent/releases/download/v0.10.2-beta.1/miru-agent_0.10.2-beta.1_{{ miru_apt_architecture }}.deb"
+```
 
 ## Notes and limitations
 
@@ -105,9 +125,8 @@ CI runs the e2e scenario on same-repo pulls using the `MIRU_API_KEY` repository 
 
 ### Publishing
 
-1. Create the `mirurobotics` namespace on [Ansible Galaxy](https://galaxy.ansible.com) (log in with GitHub).
-2. Add a `GALAXY_API_KEY` repository secret (Galaxy → Collections → API token).
-3. Tag `v0.1.0` (must match `galaxy.yml`) and push. The Release workflow builds and publishes.
+1. Tag `vX.Y.Z` matching `galaxy.yml` and push. The Release workflow attaches `mirurobotics-agent-X.Y.Z.tar.gz` to a GitHub Release.
+2. When the `mirurobotics` namespace exists on [Ansible Galaxy](https://galaxy.ansible.com), the same workflow publishes the tarball (`GALAXY_API_KEY`). Galaxy publish is best-effort until that namespace is granted.
 
 ## License
 

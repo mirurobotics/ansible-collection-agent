@@ -13,4 +13,8 @@
   fresh host exits 3.
 - Molecule e2e scenario that mints a provisioning token and provisions a
   device against the production API (CI uses the `MIRU_API_KEY` secret).
-- Tag `v0.1.0` to publish to Ansible Galaxy (requires `GALAXY_API_KEY`).
+- Optional `miru_agent_deb_url` to install a GitHub `.deb` when apt does not
+  yet publish the pinned version.
+- Install from git or the GitHub Release tarball until the `mirurobotics`
+  Galaxy namespace is granted. Tag `v*` attaches the tarball to a GitHub
+  Release and attempts Galaxy publish.

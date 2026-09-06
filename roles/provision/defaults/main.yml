@@ -1,4 +1,5 @@
 miru_device_name: "{{ inventory_hostname }}"
+miru_agent_deb_url: ""
 
 miru_api_base_url: "https://api.mirurobotics.com/beta"
 miru_api_version: "2026-08-17.everglades"
