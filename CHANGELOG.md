@@ -10,7 +10,8 @@
 - Install `python3-debian` (required by the `deb822_repository` module).
 - Validate tests (required arguments and the 0.10.2 version floor) and a
   Molecule scenario on Ubuntu 20.04, 22.04, and 24.04 that installs a
-  `--check`-capable agent and asserts a fresh host exits 3.
+  `--check`-capable agent and asserts a fresh host exits 3. Ubuntu 20.04
+  installs Python 3.9 in prepare so current ansible-core can manage the host.
 - Molecule e2e scenario that mints a provisioning token and provisions a
   device against the production API (CI uses the `MIRU_API_KEY` secret).
 - Install from git or the GitHub Release tarball. Tag `v*` attaches the

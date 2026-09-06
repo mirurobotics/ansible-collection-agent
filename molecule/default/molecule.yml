@@ -18,5 +18,9 @@ provisioner:
     group_vars:
       all:
         miru_agent_version: "{{ lookup('env', 'MOLECULE_AGENT_VERSION') | default('0.10.2', true) }}"
+        ansible_python_interpreter: >-
+          {{ '/usr/bin/python3.9'
+             if (lookup('env', 'MOLECULE_DISTRO') | default('ubuntu2404', true)) == 'ubuntu2004'
+             else '/usr/bin/python3' }}
 verifier:
   name: ansible

@@ -1,0 +1,10 @@
+# ansible-core 2.17+ needs Python 3.9+ on the target. Ubuntu 20.04 ships 3.8.
+- name: Prepare
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Install Python 3.9 on Ubuntu 20.04
+      ansible.builtin.raw: apt-get update && apt-get install -y python3.9
+      become: true
+      when: lookup("env", "MOLECULE_DISTRO") == "ubuntu2004"
+      changed_when: true
