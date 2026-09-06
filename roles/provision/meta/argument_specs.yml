@@ -25,6 +25,12 @@ argument_specs:
             (`provision --check` is not in earlier releases).
           - Use "latest" to install or upgrade to the newest package on every
             run (labs). Prefer a pin in production.
+      miru_agent_deb_url:
+        type: str
+        description:
+          - HTTPS URL of a miru-agent .deb to install instead of the apt pin.
+          - Use this when the version you need is on GitHub Releases but not
+            yet in the Miru apt repository. Must match the host architecture.
       miru_device_name:
         type: str
         default: "{{ inventory_hostname }}"

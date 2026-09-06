@@ -1,4 +1,12 @@
-- name: Install miru-agent
+- name: Install miru-agent from a .deb URL
+  when: miru_agent_deb_url | length > 0
+  ansible.builtin.apt:
+    deb: "{{ miru_agent_deb_url }}"
+    state: present
+  become: true
+
+- name: Install miru-agent from apt
+  when: miru_agent_deb_url | length == 0
   ansible.builtin.apt:
     name: "miru-agent{% if miru_agent_version != 'latest' %}={{ miru_agent_version }}{% endif %}"
     state: "{{ 'latest' if miru_agent_version == 'latest' else 'present' }}"

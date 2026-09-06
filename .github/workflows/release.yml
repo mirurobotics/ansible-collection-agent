@@ -6,7 +6,7 @@ on:
       - "v*"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   publish:
@@ -30,7 +30,20 @@ jobs:
       - name: Build the collection
         run: ansible-galaxy collection build --output-path dist
 
+      - name: Attach the tarball to a GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          asset="mirurobotics-agent-${GITHUB_REF_NAME#v}.tar.gz"
+          url="https://github.com/mirurobotics/ansible-collection-agent/releases/download/${GITHUB_REF_NAME}/${asset}"
+          gh release create "${GITHUB_REF_NAME}" dist/*.tar.gz \
+            --title "${GITHUB_REF_NAME}" \
+            --notes "Install with: ansible-galaxy collection install ${url}"
+
+      # Kept for when the mirurobotics Galaxy namespace is granted.
+      # Enable with the PUBLISH_TO_GALAXY repository variable.
       - name: Publish to Ansible Galaxy
+        if: ${{ vars.PUBLISH_TO_GALAXY == 'true' }}
         env:
           GALAXY_API_KEY: ${{ secrets.GALAXY_API_KEY }}
         run: |
