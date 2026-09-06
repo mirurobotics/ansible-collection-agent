@@ -18,7 +18,7 @@ The role is idempotent: a pinned version converges every host to that package, a
 ## Requirements
 
 - ansible-core >= 2.15
-- Target devices running a [supported Linux platform](https://docs.mirurobotics.com/developers/agent/install) with `systemd` and apt
+- Target devices running a [supported Linux platform](https://docs.mirurobotics.com/developers/agent/install) with `systemd` and apt. ansible-core 2.17+ also needs Python 3.9+ on the target; Ubuntu 20.04 ships 3.8, so install `python3.9` on those hosts or use ansible-core 2.16.
 - Miru Agent >= v0.10.2 (`provision --check` is not in earlier releases)
 - A Miru [API key](https://docs.mirurobotics.com/admin/apikeys) with the `devices:provision` and `provisioning_tokens:write` scopes, available on the Ansible controller
 
