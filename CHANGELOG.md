@@ -13,8 +13,7 @@
   fresh host exits 3.
 - Molecule e2e scenario that mints a provisioning token and provisions a
   device against the production API (CI uses the `MIRU_API_KEY` secret).
-- Optional `miru_agent_deb_url` to install a GitHub `.deb` when apt does not
-  yet publish the pinned version.
 - Install from git or the GitHub Release tarball. Tag `v*` attaches the
   tarball to a GitHub Release. Galaxy publish is present in the workflow
   but skipped until `PUBLISH_TO_GALAXY` is enabled.
+- Removed `miru_agent_deb_url` now that apt `stable` publishes 0.10.2.

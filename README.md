@@ -71,7 +71,6 @@ A ready-made playbook is included: `ansible-playbook -i inventory mirurobotics.a
 | --- | --- | --- |
 | `miru_api_key` | — (required) | Platform API key used to mint provisioning tokens. Controller-side only. |
 | `miru_agent_version` | — (required) | Agent version to install, e.g. `0.10.2`. Must be `0.10.2` or later. Use `latest` only when you want the newest package on every run. |
-| `miru_agent_deb_url` | `""` | HTTPS URL of a `miru-agent` `.deb` to install instead of the apt pin. Use when that version is on GitHub Releases but not yet in apt. Must match the host architecture. |
 | `miru_device_name` | `inventory_hostname` | Device name shown in the Miru dashboard. |
 | `miru_api_base_url` | `https://api.mirurobotics.com/beta` | Platform API base URL. |
 | `miru_api_version` | `2026-08-17.everglades` | `Miru-Version` header sent to the Platform API. |
@@ -79,13 +78,6 @@ A ready-made playbook is included: `ansible-playbook -i inventory mirurobotics.a
 | `miru_apt_key_url` | `.../apt/miru.gpg` | Miru apt signing key. |
 | `miru_apt_architecture` | auto-detected | Debian architecture (`amd64`, `arm64`). |
 | `miru_log_secrets` | `false` | Print the API key and provisioning token in Ansible output. Leave off except for a local debug run. |
-
-Apt `stable` does not yet publish 0.10.2. Until it does, pin a GitHub `.deb` that includes `provision --check`:
-
-```yaml
-miru_agent_version: "0.10.2-beta.1"
-miru_agent_deb_url: "https://github.com/mirurobotics/agent/releases/download/v0.10.2-beta.1/miru-agent_0.10.2-beta.1_{{ miru_apt_architecture }}.deb"
-```
 
 ## Notes and limitations
 
@@ -102,7 +94,7 @@ ansible-lint
 bash tests/validate/run.sh
 ```
 
-Molecule (Docker; installs `miru-agent` 0.10.2-beta.1 from GitHub and asserts `provision --check` exits 3):
+Molecule (Docker; installs `miru-agent` 0.10.2 from apt and asserts `provision --check` exits 3):
 
 ```bash
 pip install ansible-core molecule "molecule-plugins[docker]"
@@ -110,7 +102,7 @@ ansible-galaxy collection install community.docker ansible.posix
 molecule test
 ```
 
-End-to-end Molecule mints a token and provisions a device. It needs `MIRU_API_KEY` with `devices:provision` and `provisioning_tokens:write`. Apt does not yet publish 0.10.2-beta.1, so the scenario installs the GitHub `.deb` and then runs the role's `provision.yml`.
+End-to-end Molecule mints a token and provisions a device. It needs `MIRU_API_KEY` with `devices:provision` and `provisioning_tokens:write`.
 
 ```bash
 export MIRU_API_KEY=...

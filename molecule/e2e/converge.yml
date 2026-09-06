@@ -1,5 +1,4 @@
-# Live control plane: validate + apt source + GitHub .deb (apt does not yet
-# publish 0.10.2-beta.1, so install.yml cannot pin it) + provision.yml.
+# Live control plane: validate + apt install + provision.yml.
 # Requires MIRU_API_KEY with devices:provision and provisioning_tokens:write.
 - name: Converge
   hosts: all
@@ -26,26 +25,10 @@
         name: provision
         tasks_from: repo.yml
 
-    - name: Download a provision --check capable agent
-      ansible.builtin.get_url:
-        url: "{{ miru_agent_deb_url }}"
-        dest: /tmp/miru-agent.deb
-        mode: "0644"
-      vars:
-        miru_agent_ver: "{{ miru_agent_deb_tag | regex_replace('^v', '') }}"
-        miru_agent_deb_url: >-
-          https://github.com/mirurobotics/agent/releases/download/{{ miru_agent_deb_tag }}/miru-agent_{{ miru_agent_ver }}_amd64.deb
-
-    - name: Install the downloaded agent
-      ansible.builtin.apt:
-        deb: /tmp/miru-agent.deb
-        state: present
-
-    - name: Ensure the miru service is enabled and running
-      ansible.builtin.systemd:
-        name: miru
-        enabled: true
-        state: started
+    - name: Install miru-agent
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: install.yml
 
     - name: Provision the device
       ansible.builtin.include_role:

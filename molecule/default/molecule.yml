@@ -17,6 +17,6 @@ provisioner:
   inventory:
     group_vars:
       all:
-        miru_agent_deb_tag: "{{ lookup('env', 'MOLECULE_AGENT_TAG') | default('v0.10.2-beta.1', true) }}"
+        miru_agent_version: "{{ lookup('env', 'MOLECULE_AGENT_VERSION') | default('0.10.2', true) }}"
 verifier:
   name: ansible
