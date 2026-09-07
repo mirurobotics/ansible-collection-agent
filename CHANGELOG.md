@@ -18,3 +18,5 @@
   tarball to a GitHub Release. Galaxy publish is present in the workflow
   but skipped until `PUBLISH_TO_GALAXY` is enabled.
 - Removed `miru_agent_deb_url` now that apt `stable` publishes 0.10.2.
+- Removed the shipped `provision` playbook. The role is the collection
+  entry point; callers choose their own inventory group.
