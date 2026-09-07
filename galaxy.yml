@@ -13,7 +13,7 @@ tags:
   - robotics
   - iot
 repository: https://github.com/mirurobotics/ansible-collection-agent
-documentation: https://docs.mirurobotics.com
+documentation: https://docs.mirurobotics.com/cfg-mgmt/provision-devices/ansible
 homepage: https://www.mirurobotics.com
 issues: https://github.com/mirurobotics/ansible-collection-agent/issues
 build_ignore:
