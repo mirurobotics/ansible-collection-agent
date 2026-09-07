@@ -51,9 +51,11 @@ Galaxy install (`ansible-galaxy collection install mirurobotics.agent`) is not e
 
 ## Usage
 
+Apply the role to the hosts in your inventory. Replace `devices` with your inventory group:
+
 ```yaml
 - name: Provision Miru devices
-  hosts: all
+  hosts: devices
   roles:
     - role: mirurobotics.agent.provision
       vars:
@@ -61,7 +63,7 @@ Galaxy install (`ansible-galaxy collection install mirurobotics.agent`) is not e
         miru_agent_version: "0.10.2"   # required, >= 0.10.2; use "latest" to float
 ```
 
-Apply the role to whatever inventory group you already use. Store the API key in [Ansible Vault](https://docs.ansible.com/ansible/latest/vault_guide/index.html) or inject it from your CI secret store — never commit it to inventory.
+Store the API key in [Ansible Vault](https://docs.ansible.com/ansible/latest/vault_guide/index.html) or inject it from your CI secret store — never commit it to inventory.
 
 ### Role variables
 
