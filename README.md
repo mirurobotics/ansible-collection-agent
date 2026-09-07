@@ -53,7 +53,7 @@ Galaxy install (`ansible-galaxy collection install mirurobotics.agent`) is not e
 
 ```yaml
 - name: Provision Miru devices
-  hosts: robots
+  hosts: all
   roles:
     - role: mirurobotics.agent.provision
       vars:
@@ -61,9 +61,7 @@ Galaxy install (`ansible-galaxy collection install mirurobotics.agent`) is not e
         miru_agent_version: "0.10.2"   # required, >= 0.10.2; use "latest" to float
 ```
 
-Store the API key in [Ansible Vault](https://docs.ansible.com/ansible/latest/vault_guide/index.html) or inject it from your CI secret store — never commit it to inventory.
-
-A ready-made playbook is included: `ansible-playbook -i inventory mirurobotics.agent.provision` targets the `robots` group.
+Apply the role to whatever inventory group you already use. Store the API key in [Ansible Vault](https://docs.ansible.com/ansible/latest/vault_guide/index.html) or inject it from your CI secret store — never commit it to inventory.
 
 ### Role variables
 
