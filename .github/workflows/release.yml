@@ -37,7 +37,9 @@ jobs:
           version="${GITHUB_REF_NAME#v}"
           asset="mirurobotics-agent-${version}.tar.gz"
           url="https://github.com/mirurobotics/ansible-collection-agent/releases/download/${GITHUB_REF_NAME}/${asset}"
-          notes="Install from Ansible Galaxy: ansible-galaxy collection install mirurobotics.agent:==${version}. Fallback: ansible-galaxy collection install ${url}"
+          notes="Install from Ansible Galaxy: "
+          notes+="ansible-galaxy collection install mirurobotics.agent:==${version}. "
+          notes+="Fallback: ansible-galaxy collection install ${url}"
           gh release create "${GITHUB_REF_NAME}" dist/*.tar.gz \
             --title "${GITHUB_REF_NAME}" \
             --notes "${notes}"
