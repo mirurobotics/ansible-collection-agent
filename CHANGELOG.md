@@ -1,6 +1,14 @@
 # Changelog
 
-## 0.1.0 (unreleased)
+## 0.1.1 (2026-09-08)
+
+- First publish to Ansible Galaxy as `mirurobotics.agent`.
+- Install with `ansible-galaxy collection install mirurobotics.agent`.
+- Git and GitHub Release tarball installs remain available as fallbacks.
+- Tag `v*` publishes the collection tarball to Galaxy and attaches it to a
+  GitHub Release.
+
+## 0.1.0 (2026-09-06)
 
 - Initial scaffold of the `mirurobotics.agent` collection.
 - `provision` role: apt repository setup, `miru-agent` install (version is
@@ -14,9 +22,8 @@
   runs under ansible-core 2.16 (2.17+ cannot manage Focal's Python 3.8).
 - Molecule e2e scenario that mints a provisioning token and provisions a
   device against the production API (CI uses the `MIRU_API_KEY` secret).
-- Install from git or the GitHub Release tarball. Tag `v*` attaches the
-  tarball to a GitHub Release. Galaxy publish is present in the workflow
-  but skipped until `PUBLISH_TO_GALAXY` is enabled.
+- GitHub-only distribution via git or the Release tarball while the
+  `mirurobotics` Galaxy namespace was pending.
 - Removed `miru_agent_deb_url` now that apt `stable` publishes 0.10.2.
 - Removed the shipped `provision` playbook. The role is the collection
   entry point; callers choose their own inventory group.
