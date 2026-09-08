@@ -1,6 +1,6 @@
 namespace: mirurobotics
 name: agent
-version: 0.1.1
+version: 0.1.2
 readme: README.md
 authors:
   - Miru Robotics <support@miruml.com>

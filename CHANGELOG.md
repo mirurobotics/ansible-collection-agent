@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.2 (2026-09-08)
+
+- Add `roles/provision/README.md` so Galaxy import succeeds. The 0.1.1
+  tarball uploaded but import failed with "No role readme found."
+
 ## 0.1.1 (2026-09-08)
 
 - First publish to Ansible Galaxy as `mirurobotics.agent`.
