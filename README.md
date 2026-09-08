@@ -5,27 +5,6 @@
 For detailed documentation and usage instructions, please visit the
 [official documentation](https://docs.mirurobotics.com/cfg-mgmt/provision-devices/ansible).
 
-## Install
-
-```bash
-ansible-galaxy collection install mirurobotics.agent
-```
-
-Or pin a version in `requirements.yml`:
-
-```yaml
-collections:
-  - name: mirurobotics.agent
-    version: ">=0.1.1"
-```
-
-```bash
-ansible-galaxy collection install -r requirements.yml
-```
-
-Git and GitHub Release tarball installs remain available as fallbacks; see
-Publishing below.
-
 ## Development
 
 ```bash
