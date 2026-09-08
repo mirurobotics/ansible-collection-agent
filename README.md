@@ -32,7 +32,13 @@ CI runs the e2e scenario on same-repo pulls using the `MIRU_API_KEY` repository 
 
 ### Publishing
 
-Tag `vX.Y.Z` matching `galaxy.yml` and push. The Release workflow attaches `mirurobotics-agent-X.Y.Z.tar.gz` to a GitHub Release. Galaxy publish stays in the workflow but is skipped until the `PUBLISH_TO_GALAXY` repository variable is set to `true`.
+Tag `vX.Y.Z` matching `galaxy.yml` and push. The Release workflow publishes
+`mirurobotics-agent-X.Y.Z.tar.gz` to Ansible Galaxy and attaches the same
+tarball to a GitHub Release.
+
+```bash
+ansible-galaxy collection install mirurobotics.agent:==X.Y.Z
+```
 
 ## License
 
