@@ -52,6 +52,15 @@ jobs:
         env:
           MOLECULE_DISTRO: ${{ matrix.distro }}
 
+  # One stable check for branch protection, so the matrix can change
+  # without touching the required checks in infra.
+  molecule-result:
+    if: always()
+    needs: molecule
+    runs-on: ubuntu-latest
+    steps:
+      - run: test "${{ needs.molecule.result }}" = success
+
   e2e:
     # Same-repo PRs and pushes have MIRU_API_KEY. Fork PRs do not.
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
