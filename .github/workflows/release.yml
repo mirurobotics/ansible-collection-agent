@@ -57,6 +57,7 @@ jobs:
   notify:
     name: 'Notify #deploys'
     needs: publish
+    if: ${{ always() && needs.publish.result != 'skipped' }}
     runs-on: ubuntu-latest
     permissions: {}
     steps:
@@ -65,5 +66,5 @@ jobs:
         with:
           webhook-url: ${{ secrets.SLACK_DEPLOYS_WEBHOOK_URL }}
           summary: Release the Ansible collection ${{ github.ref_name }}
-          link: https://github.com/mirurobotics/ansible-collection-agent/releases/tag/${{ github.ref_name }}
+          link: ${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ github.ref_name }}
           results: ${{ needs.publish.result }}
