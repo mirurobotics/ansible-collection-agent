@@ -53,3 +53,18 @@ jobs:
             exit 1
           fi
           ansible-galaxy collection publish dist/*.tar.gz --api-key "${GALAXY_API_KEY}"
+
+  notify:
+    name: 'Notify #deploys'
+    needs: publish
+    if: ${{ always() && needs.publish.result != 'skipped' }}
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Post to Slack
+        uses: mirurobotics/.github/actions/notify-deploys@92b69ccbe0df53724fd15970c53eae1db77fab14 # main
+        with:
+          webhook-url: ${{ secrets.SLACK_DEPLOYS_WEBHOOK_URL }}
+          summary: Release the Ansible collection ${{ github.ref_name }}
+          link: ${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ github.ref_name }}
+          results: ${{ needs.publish.result }}
