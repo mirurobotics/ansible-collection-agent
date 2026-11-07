@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3 (2026-11-07)
+
+- No changes to the collection's roles. The release workflow now posts each
+  release to the #deploys Slack channel.
+
 ## 0.1.2 (2026-09-08)
 
 - Add `roles/provision/README.md` so Galaxy import succeeds. The 0.1.1
