@@ -65,8 +65,8 @@ jobs:
       - run: test "${{ needs.molecule.result }}" = success
 
   e2e:
-    # Same-repo PRs and pushes have MIRU_API_KEY. Fork PRs do not.
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    # Same-repo PRs and pushes have MIRU_API_KEY. Fork and Dependabot PRs do not.
+    if: github.actor != 'dependabot[bot]' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
