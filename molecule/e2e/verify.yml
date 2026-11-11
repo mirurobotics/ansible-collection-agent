@@ -10,6 +10,10 @@
           - --check
       become: true
       become_user: miru
+      # The miru user has no home dir, so Ansible's default ~/.ansible/tmp
+      # warns on every run. /tmp always exists and miru can write to it.
+      vars:
+        ansible_remote_tmp: /tmp
       register: miru_check
       changed_when: false
       failed_when: miru_check.rc not in [0, 3]
