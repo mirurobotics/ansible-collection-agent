@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- `provision` role: pass the provisioning token to `miru-agent provision` on
+  stdin instead of through `environment:`. With `become`, Ansible put the
+  token on the sudo command line, so other users on the device could read it
+  with `ps`, and it showed up in sudo logs and `-vvv` output despite
+  `no_log`.
+
 ## 0.1.3 (2026-11-07)
 
 - No changes to the collection's roles. The release workflow now posts each
