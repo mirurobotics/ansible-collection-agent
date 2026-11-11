@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- `provision` role: stop the "Unable to use '/home/miru/.ansible/tmp' as
+  temporary directory" warning on the tasks that run as `miru`. The `miru`
+  user is created without a home dir, so those tasks now use `/tmp` for
+  Ansible's temp files.
 - `provision` role: pass the provisioning token to `miru-agent provision` on
   stdin instead of through `environment:`. With `become`, Ansible put the
   token on the sudo command line, so other users on the device could read it
