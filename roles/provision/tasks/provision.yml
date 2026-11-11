@@ -39,8 +39,9 @@
     # The token goes in on stdin, not through `environment:`. With become,
     # Ansible inlines `environment:` into the sudo command line, so the token
     # would show up in `ps`, sudo's log, and -vvv output despite no_log. The
-    # shell reads stdin into the variable and execs the agent; the device name
-    # is passed as "$1" so it is never parsed as shell code.
+    # shell reads stdin into the variable and execs the agent. The
+    # --device-name flag is passed as "$1" so it is never parsed as shell code;
+    # it keeps its prefix so the command module's `~` expansion can't touch it.
     - name: Provision the device
       ansible.builtin.command:
         argv:
@@ -49,9 +50,9 @@
           - >-
             MIRU_PROVISIONING_TOKEN="$(cat)" &&
             export MIRU_PROVISIONING_TOKEN &&
-            exec /usr/sbin/miru-agent provision --device-name="$1"
+            exec /usr/sbin/miru-agent provision "$1"
           - miru-provision
-          - "{{ miru_device_name }}"
+          - "--device-name={{ miru_device_name }}"
         stdin: "{{ miru_token_response.json.token }}"
         stdin_add_newline: false
       become: true
