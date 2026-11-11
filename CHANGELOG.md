@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.4 (2026-11-11)
 
 - `provision` role: stop the "Unable to use '/home/miru/.ansible/tmp' as
   temporary directory" warning on the tasks that run as `miru`. The `miru`
