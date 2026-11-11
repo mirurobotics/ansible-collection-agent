@@ -1,0 +1,65 @@
+# Leaves the device the way a provision that failed after the backend created it
+# would: `activating` in the backend, with no local state on the host. Converge
+# must then recover it (ENG-1847). Prepare runs once per instance, so the
+# idempotence converge does not repeat this.
+- name: Prepare
+  hosts: all
+  gather_facts: false
+  vars:
+    # Read the role's API defaults without vars_files, which would also override
+    # the inventory's miru_device_name.
+    miru_e2e_role_defaults: >-
+      {{ lookup('ansible.builtin.file',
+         playbook_dir ~ '/../../roles/provision/defaults/main.yml') | from_yaml }}
+  tasks:
+    - name: Generate a throwaway public key
+      ansible.builtin.shell:
+        cmd: >-
+          set -o pipefail &&
+          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:4096 2>/dev/null |
+          openssl pkey -pubout
+        executable: /bin/bash
+      register: miru_e2e_pubkey
+      changed_when: false
+      delegate_to: localhost
+      become: false
+
+    - name: Mint a provisioning token
+      ansible.builtin.uri:
+        url: "{{ miru_e2e_role_defaults.miru_api_base_url }}/provisioning_tokens"
+        method: POST
+        headers:
+          Miru-Version: "{{ miru_e2e_role_defaults.miru_api_version }}"
+          X-API-Key: "{{ miru_api_key }}"
+        status_code: 200
+      register: miru_e2e_token
+      delegate_to: localhost
+      become: false
+      no_log: true
+
+    - name: Create the device in the backend without bootstrapping the host
+      ansible.builtin.uri:
+        url: "{{ miru_e2e_agent_api_url }}/devices/provision"
+        method: POST
+        headers:
+          Authorization: "Bearer {{ miru_e2e_token.json.token }}"
+          Miru-Version: "{{ miru_e2e_agent_api_version }}"
+        body_format: json
+        body:
+          name: "{{ miru_device_name }}"
+          public_key_pem: "{{ miru_e2e_pubkey.stdout }}"
+          agent_version: "{{ miru_agent_version }}"
+        status_code: [200, 201]
+      register: miru_e2e_abandoned
+      changed_when: true
+      delegate_to: localhost
+      become: false
+      no_log: true
+
+    - name: Assert the device is stuck in activating
+      ansible.builtin.assert:
+        that:
+          - miru_e2e_abandoned.json.status == "activating"
+        fail_msg: >-
+          expected the abandoned device to be activating
+          (got {{ miru_e2e_abandoned.json.status | default('none') }})
