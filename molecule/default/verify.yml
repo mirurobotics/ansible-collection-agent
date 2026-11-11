@@ -26,6 +26,9 @@
           - --check
       become: true
       become_user: miru
+      # miru has no home dir; see roles/provision/tasks/provision.yml.
+      vars:
+        ansible_remote_tmp: /tmp
       register: miru_check
       changed_when: false
       failed_when: miru_check.rc not in [0, 3]
