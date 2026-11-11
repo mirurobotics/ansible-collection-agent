@@ -1,4 +1,5 @@
-# Live control plane: validate + apt install + provision.yml.
+# Live control plane: validate + apt install + a simulated failed provision +
+# provision.yml, which must recover the stuck device.
 # Requires MIRU_API_KEY with devices:provision and provisioning_tokens:write.
 - name: Converge
   hosts: all
@@ -29,6 +30,23 @@
       ansible.builtin.include_role:
         name: provision
         tasks_from: install.yml
+
+    # Skipped on the idempotence converge, when the host is already provisioned.
+    - name: Check if the device is already provisioned
+      ansible.builtin.command:
+        argv:
+          - /usr/sbin/miru-agent
+          - provision
+          - --check
+      become: true
+      become_user: miru
+      register: miru_e2e_check
+      changed_when: false
+      failed_when: miru_e2e_check.rc not in [0, 3]
+
+    - name: Simulate a provision that failed after the device was created
+      ansible.builtin.include_tasks: tasks/simulate_failed_provision.yml
+      when: miru_e2e_check.rc == 3
 
     - name: Provision the device
       ansible.builtin.include_role:
