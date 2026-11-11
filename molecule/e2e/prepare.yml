@@ -5,13 +5,14 @@
 - name: Prepare
   hosts: all
   gather_facts: false
-  vars:
-    # Read the role's API defaults without vars_files, which would also override
-    # the inventory's miru_device_name.
-    miru_e2e_role_defaults: >-
-      {{ lookup('ansible.builtin.file',
-         playbook_dir ~ '/../../roles/provision/defaults/main.yml') | from_yaml }}
   tasks:
+    # public: true keeps the role defaults (API URL and version) for the tasks below.
+    - name: Validate required variables
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: validate.yml
+        public: true
+
     - name: Generate a throwaway public key
       ansible.builtin.shell:
         cmd: >-
@@ -26,10 +27,10 @@
 
     - name: Mint a provisioning token
       ansible.builtin.uri:
-        url: "{{ miru_e2e_role_defaults.miru_api_base_url }}/provisioning_tokens"
+        url: "{{ miru_api_base_url }}/provisioning_tokens"
         method: POST
         headers:
-          Miru-Version: "{{ miru_e2e_role_defaults.miru_api_version }}"
+          Miru-Version: "{{ miru_api_version }}"
           X-API-Key: "{{ miru_api_key }}"
         status_code: 200
       register: miru_e2e_token
