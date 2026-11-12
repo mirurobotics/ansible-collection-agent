@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- `provision` role: skip the apt index refresh when `ca-certificates` and
+  `python3-debian` are already installed. The `apt` module refreshes the
+  index before it checks what is installed, so every run on a set-up device
+  ran a full `apt-get update`. The role now checks with `dpkg-query` first
+  and only runs apt when a prerequisite is missing.
+
 ## 0.1.4 (2026-11-11)
 
 - `provision` role: stop the "Unable to use '/home/miru/.ansible/tmp' as
