@@ -10,31 +10,28 @@
   failed_when: false
   check_mode: false
 
-# Refresh the apt index only when the install can need it:
-# - the Miru repo was just added or changed: always refresh.
-# - "latest" with the agent installed: refresh at most hourly to see upgrades.
-# - a pinned version that isn't installed yet (first install, a version bump,
-#   or a run whose earlier refresh failed): always refresh.
-# A device that already has the pinned version skips the refresh entirely.
+# Skip apt entirely when the pinned version is already installed. Otherwise
+# refresh the index first: at most hourly for "latest" on a device that
+# already has the agent and an unchanged Miru repo, and always in every other
+# case (first install, a version bump, a changed repo, or a run whose earlier
+# refresh failed).
 - name: Install miru-agent
   ansible.builtin.apt:
     name: "miru-agent{% if miru_agent_version != 'latest' %}={{ miru_agent_version }}{% endif %}"
     state: "{{ 'latest' if miru_agent_version == 'latest' else 'present' }}"
-    update_cache: >-
-      {{
-        miru_apt_repo is changed
-        or miru_agent_version == 'latest'
-        or miru_agent_installed.stdout is not match('[^ ]+ ok installed[|]' ~ (miru_agent_version | regex_escape) ~ '$')
-      }}
+    update_cache: true
     cache_valid_time: >-
       {{
         3600
-        if miru_apt_repo is not changed
-          and miru_agent_version == 'latest'
+        if miru_agent_version == 'latest'
+          and miru_apt_repo is not changed
           and miru_agent_installed.stdout is match('[^ ]+ ok installed[|]')
         else 0
       }}
   become: true
+  when: >-
+    miru_agent_version == 'latest'
+    or miru_agent_installed.stdout is not match('[^ ]+ ok installed[|]' ~ (miru_agent_version | regex_escape) ~ '$')
 
 - name: Ensure the miru service is enabled and running
   ansible.builtin.systemd:
