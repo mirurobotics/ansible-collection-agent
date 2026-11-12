@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+- `provision` role: skip the apt index refresh when `ca-certificates` and
+  `python3-debian` are already installed. The `apt` module refreshes the
+  index before it checks what is installed, so every run on a set-up device
+  ran a full `apt-get update`. The role now checks with `dpkg-query` first
+  and only runs apt when a prerequisite is missing. The `miru-agent` install
+  step now refreshes the index itself when it needs to: when the Miru repo
+  changed, when the pinned version isn't installed yet, or (at most hourly)
+  when `miru_agent_version` is `latest`. A device that already has the pinned
+  version runs no `apt-get update` at all.
+
 ## 0.1.4 (2026-11-11)
 
 - `provision` role: stop the "Unable to use '/home/miru/.ansible/tmp' as
