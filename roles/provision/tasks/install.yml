@@ -24,14 +24,14 @@
       {{
         miru_apt_repo is changed
         or miru_agent_version == 'latest'
-        or miru_agent_installed.stdout != 'install ok installed|' ~ miru_agent_version
+        or miru_agent_installed.stdout is not match('[^ ]+ ok installed[|]' ~ (miru_agent_version | regex_escape) ~ '$')
       }}
     cache_valid_time: >-
       {{
         3600
         if miru_apt_repo is not changed
           and miru_agent_version == 'latest'
-          and miru_agent_installed.stdout is match('install ok installed[|]')
+          and miru_agent_installed.stdout is match('[^ ]+ ok installed[|]')
         else 0
       }}
   become: true

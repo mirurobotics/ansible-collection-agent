@@ -1,33 +1,26 @@
 # The apt module refreshes the package index before it checks what is
 # installed, so on an already set up device it would run apt-get update on
 # every play. Check with dpkg first and only touch apt when something is
-# missing.
+# missing. Any "<want> ok installed" status counts, so held packages match.
 - name: Check which apt prerequisites are installed
   ansible.builtin.command:
-    argv:
-      - dpkg-query
-      - --show
-      - --showformat=${Status}\n
-      - ca-certificates
-      - python3-debian
+    argv: >-
+      {{ ['dpkg-query', '--show', '--showformat=${Status}\n'] + miru_apt_prerequisites }}
   register: miru_apt_prereqs
   changed_when: false
   failed_when: false
   check_mode: false
 
-# python3-debian is required by the deb822_repository module
 - name: Ensure apt prerequisites are present
   ansible.builtin.apt:
-    name:
-      - ca-certificates
-      - python3-debian
+    name: "{{ miru_apt_prerequisites }}"
     state: present
     update_cache: true
     cache_valid_time: 3600
   become: true
   when: >-
-    miru_apt_prereqs.rc != 0
-    or miru_apt_prereqs.stdout_lines | reject('equalto', 'install ok installed') | list | length > 0
+    miru_apt_prereqs.stdout_lines | select('match', '^[^ ]+ ok installed$') | list | length
+    != miru_apt_prerequisites | length
 
 - name: Add the Miru apt repository
   ansible.builtin.deb822_repository:
