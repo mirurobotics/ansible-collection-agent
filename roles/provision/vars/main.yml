@@ -1,0 +1,5 @@
+# Packages the role needs before it can add the Miru apt repository.
+# python3-debian is required by the deb822_repository module.
+miru_apt_prerequisites:
+  - ca-certificates
+  - python3-debian
