@@ -24,5 +24,7 @@ provisioner:
         miru_device_name: >-
           ci-{{ lookup('env', 'GITHUB_RUN_ID') | default(lookup('pipe', 'date +%s'), true) }}-{{ inventory_hostname }}
         miru_log_secrets: false
+        miru_e2e_agent_api_url: "https://api.mirurobotics.com/agent/v1"
+        miru_e2e_agent_api_version: "v0.5"
 verifier:
   name: ansible
